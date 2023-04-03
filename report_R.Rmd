@@ -1,0 +1,149 @@
+---
+title: "Exploring the correlation Patterns of internet connection and election outcomes in Zambia"
+output: html_document
+date: "Bernardi Marta - Introduction to Data Analysis with R - Final Project - Winter 2023 - CEU"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+library(readr)
+library(sf)
+library(readr)
+library(ggthemes)
+library(dplyr)
+library(ggplot2)
+
+setwd("C:/Users/Bernardi_Marta/Downloads/Zambia")
+```
+
+#Introduction: 
+
+The project employes 3 datasets with the aim to combine georeferenced election outcomes at electoral district level in Zambia with OpenCellID data coming from a public access API containing information on the presence of active internet cells and their coverage.
+
+Firstly, I upload the data containing the georeferenced informtion on internet access downloaded from :  https://opencellid.org/downloads.php and I rename the columns so that it is understandable which values is what and I keep only interesting columns , to obtain the data as below as save them in a csv.
+
+```{r upload}
+knitr::opts_chunk$set(echo = FALSE)
+Zambia_data <- read_csv("645.csv.gz")
+names(Zambia_data)[names(Zambia_data) == "645"] <- "MCC"
+names(Zambia_data)[names(Zambia_data) == "GSM"] <- "Radio_type"
+names(Zambia_data)[names(Zambia_data) == "3"] <- "MNC"
+names(Zambia_data)[names(Zambia_data) == "3282"] <- "CID"
+names(Zambia_data)[names(Zambia_data) == "130"] <- "Location_Area_Code"
+names(Zambia_data)[names(Zambia_data) == "28.070755004883"] <- "lat"
+names(Zambia_data)[names(Zambia_data) == "-14.902267456055"] <- "lon"
+names(Zambia_data)[names(Zambia_data) == "1000"] <- "Range"
+names(Zambia_data)[names(Zambia_data) == "1...10"] <- "Changeable=1"
+names(Zambia_data)[names(Zambia_data) == "1...11"] <- "Changeable=0"
+names(Zambia_data)[names(Zambia_data) == "1459743588...12"] <- "Created"
+names(Zambia_data)[names(Zambia_data) == "1459743588...13"] <- "Updated"
+names(Zambia_data)[names(Zambia_data) == "0...14"] <- "Average_signal"
+Zambia_data <- Zambia_data |> 
+  select(c("CID","Location_Area_Code","lat","lon","Range","Created", "Average_signal"))
+head(Zambia_data)
+write_csv(Zambia_data, "Zambia_data.csv")
+```
+
+Then I transfrom the data from csv to a shape file creating a variable called geometry containing the informations now stored in the variables latitude and longitude. I keep only variables for which there are no missing data for longitude and latitude, otherwise I do not knoe where to place them in the map and I assign a coordinate reference system so that I can comapre this map with the map that I will use later containing the data on the elections, to obtain the shapefile of the mobile data as below: 
+
+
+```{r shape, echo=FALSE}
+mobile_access = read.csv("Zambia_data.csv")
+mobile_access_complete <- mobile_access[complete.cases(mobile_access[c("lat", "lon")]),]
+mobile_access_sf <- st_as_sf(mobile_access_complete, coords = c("lat", "lon"))
+st_crs(mobile_access_sf) <- 4326
+st_write(mobile_access_sf, "thcell.shp")
+mobile_access_shp <- st_read("thcell.shp")
+head(mobile_access_shp)
+```
+The data on mobile access are now in shapefile format and look like this : 
+
+```{r shape, echo=FALSE}
+plot(mobile_access_shp)
+
+```
+Here we can already see the shape of Zambia even if the borders are not clear, we see how the different variables in the dataset are distributed across the coordinates of Zambia. For now this is not particularly indicative of anything, beside that the internet access data have been successfully converted into a shapefile. 
+
+Now to give Zambia a shape and to upload the remaining part of the data necessary for the analysis I open from https://electiondataarchive.org/data-and-documentation/georeferenced-electoral-districts-datasets/ the shapes of the Zambian electoral districts, I assign the same coordinate reference system that I assigned to the mobile data above and I obtain the data as below:
+```{r newshape,include=FALSE, echo=FALSE}
+gred_shp <- st_read("gred.shp")
+st_crs(gred_shp) <- 4326
+head(gred_shp)
+```
+Plotting the data we can see how they report the coordinates of each electoral district in Zambia: 
+```{r geoplot,include=FALSE, echo=FALSE}
+plot(gred_shp)
+```
+#Data exploration 
+
+
+Now that I have both the mobile phone information and the shape of the electoral districts I can start exploring the variables of interest to answer to my research questions: 
+
+1) Which is the effect of internet access, measured as the presence of an active registered CID in the electoral district, on electoral outcome and partisan vote ? 
+
+2) How the results change when the presence of internet access is measured using the range of each cell, are findings robust? 
+
+I start by looking at how the presence of internet cells are distributed in the geograpy looking at all the data available regardless of the year: 
+
+
+```{r anotherplot,include=FALSE, echo=FALSE}
+ggplot() + 
+  geom_sf(data = mobile_access_shp, aes(fill = CID)) +
+  scale_fill_viridis_c() +
+  theme_dark()
+```
+
+It is visible how considering all the years at the same time there are CID bringing internet all across the country.
+Now to consider only data for the years of interest for the elections I slice the dataset into years using the column called created. To do so I first convert the timestamp into a date, it is a Unix timestamp so it is indicating the number of seconds from a fixed date and is unreadable as it is. The I create a list of years and I loop throught it to create one dataset for each year. 
+I'm interested in years 2011 and 2016 that can be seen below: 
+
+
+```{r anotherplot,include=FALSE, echo=FALSE}
+Zambia_data$Created <- as.POSIXct(Zambia_data$Created, origin="1970-01-01", tz="GMT")
+year_list <- split(Zambia_data, format(Zambia_data$Created, "%Y"))
+for (year in names(year_list)) {
+  filename <- paste0("zambia_mobile_", year, ".csv")
+  write.csv(year_list[[year]], file = filename, row.names = FALSE)
+}
+
+mobile_2011 <- read_csv("zambia_mobile_2011.csv")
+head(mobile_2011)
+```
+```{r year,include=FALSE, echo=FALSE}
+mobile_2016 <- read_csv("zambia_mobile_2016.csv")
+head(mobile_2016)
+```
+
+As it is visible the data for 2011 contain only 2 observations so the rest of the analysis will be focused on the 2016 elections. 
+
+I now open the mobile data for 2016 as a sf object (a way to call the shape files when openend with specific libraries in R) and I assign again always the same coordinate reference system. 
+
+```{r open,include=FALSE, echo=FALSE}
+mobile_2016_complete <- mobile_2016[complete.cases(mobile_2016[c("lat", "lon")]),]
+mobile_2016_sf <- st_as_sf(mobile_2016_complete, coords = c("lat", "lon"))
+st_crs(mobile_2016_sf) <- 4326
+st_write(mobile_2016_sf, "2016.shp")
+mobile_2016_shp <- st_read("2016.shp")
+```
+
+
+Then I check and compare the coordinate reference system and make sure they match.
+
+
+
+```{r crs,include=FALSE, echo=FALSE}
+mobile_2016_transformed <- st_transform(mobile_2016_shp, st_crs(gred_shp))
+```
+
+
+At this point I can merge the file with the shape of the electoral districts with the one of the mobile access in the year of interest for which the data are available and then write the merged dataset into a shapefile, so that I can see how many cells were in each district. And the data look as below: 
+
+```{r merge,include=FALSE, echo=FALSE}
+joined_sf <- st_join(gred_shp, mobile_2016_transformed, join = st_intersects)
+st_write(joined_sf, "joined_2016.shp")
+plot(joined_sf)
+```
+
+Now I rename the variables in the new merged dataset 
