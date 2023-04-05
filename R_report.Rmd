@@ -4,14 +4,12 @@ title: Exploring the Correlation Patterns of Internet Connection and Election Ou
 author: "Bernardi Marta"
 date: "Introduction to Data Analysis with R - Final Project - Winter 2023 - CEU"
 output:
-  html_document:
+  html_document: 
     df_print: paged
     margin-left: 2cm
     margin-right: 2cm
     margin-top: 2cm
     margin-bottom: 2cm
-  word_document: default
-  pdf_document: default
 ---
 
 ```{css, echo=FALSE}
@@ -45,13 +43,13 @@ Zambia has been characterized by an increased internet access across the early '
 ::: {align="center"}
 ![](Zambia_internet_penetration.png){width="600" height="500"}
 :::
--   As it is visible from the histogram around 2016 there has been a **significant increase in the internet acce**ss preceded by a steady increasing trend across all the previous years, and the literature reports this spike to be related mainly to a more diffused access to mobile internet. At the same time Zambia has hold two main elections in the period around the increase in the mobile connection bandwidth: one in 2011 and one in 2016.
+-   As it is visible from the histogram around 2016 there has been a **significant increase in the internet access** preceded by a steady increasing trend across all the previous years, and the literature reports this spike to be related mainly to a more diffused access to mobile internet. At the same time Zambia has hold two main elections in the period around the increase in the mobile connection bandwidth: one in 2011 and one in 2016.
 
 -   Therefore, the aim of this project is to assess how the possibility to connect to the internet might affect socio-economic structures of political governance through channels such as: a change in social cohesion, an effect on democratic participation and open competition or also a change in the political game that reshuffle power dynamics across parties thanks to a change in instrument for political communication.
 
 Many are the potential channels through which internet connection could affect outcomes related to political governance and more broadly the relationship of citizens with the state.
 
--   The specific goal of the report is to assess whether heterogeneity in mobile access connection is correlated with the presence of different levels of voters turnout, that is proxying electoral participation, or with different levels of valid votes, proxying a better understanding of the democratic competition rules.
+-   The specific goal of the report is to **assess whether heterogeneity in mobile access connection is correlated with the presence of different levels of voters turnout, that is proxying electoral participation, or with different levels of valid votes, proxying a better understanding of the democratic competition rules**.
 
 Three main datasets are used:
 
@@ -84,6 +82,9 @@ Or alternatively it could e because there is already a minimum level of internet
 :::
 
 The project also explores the patterns of partisan vote across geographical units, finding a different geographical division for the votes to the two main parties with NRP taking the majority of its votes from the North-East and MMP winning across the South West.
+
+The materials needed to replicated the project can be found at : https://github.com/M0arta/R_Project_Marta.git
+
 
 # Introduction:
 
@@ -143,7 +144,6 @@ gred_shp <- na.omit(gred_shp)
 
 ```{r newshaper, echo=FALSE, message = FALSE}
 knitr::kable(head(gred_shp), format = "markdown", booktabs = TRUE)
-
 ```
 
 Plotting the data we can see how they report the coordinates of each electoral district in Zambia:
@@ -179,7 +179,6 @@ To do so I first convert the timestamp into a date, it is a Unix timestamp so it
 
 The I create a list of years and I loop through it to create one dataset for each year. I'm interested in years 2011 and 2016 that can be seen below:
 
-## 2011
 
 ```{r anotheryear, echo=FALSE, message=FALSE}
 mobile_2011 <- read_csv("zambia_mobile_2011.csv")
@@ -188,12 +187,10 @@ mobile_2011 <- na.omit(mobile_2011)
 
 ## Mobile access in 2011
 
-```{r anotheryearr, echo=FALSE, message=FALSE}
-knitr::kable(head(mobile_2011), format = "markdown", booktabs = TRUE)
+```{r anotheryearr, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::kable(head(mobile_2011), format = "markdown", booktabs = TRUE, longtable = TRUE)
 
 ```
-
-## 2016
 
 ```{r year, echo=FALSE, message=FALSE}
 mobile_2016 <- read_csv("zambia_mobile_2016.csv")
@@ -203,8 +200,8 @@ mobile_2016 <- na.omit(mobile_2016)
 
 ## Mobile access in 2016
 
-```{r yearr, echo=FALSE, message=FALSE}
-knitr::kable(head(mobile_2016), format = "latex", booktabs = TRUE)
+```{r yearr, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::kable(head(mobile_2016), format = "latex", booktabs = TRUE, longtable = TRUE)
 ```
 
 As it is visible the data for 2011 contain only 2 observations so the rest of the analysis will be focused on the 2016 elections.
@@ -228,7 +225,7 @@ joined_sf <- na.omit(joined_sf)
 ###Election data into districts' shapes
 
 ```{r merger, echo=FALSE, message=FALSE}
-knitr::kable(head(joined_sf), format = "markdown", booktabs = TRUE)
+knitr::kable(head(joined_sf), format = "markdown", booktabs = TRUE, longtable = TRUE)
 ```
 
 ::: {align="center"}
@@ -400,7 +397,7 @@ When going over 25 only a bit more than the 30% of the country is colored and it
 ![](treat2_3.png){width="500" height="600"}
 :::
 
-After 50 cells the center is n more colored and around 10 districts located in the west-center of the country are remaining, indicating a correlation with other characteristics missing in the analysis regarding the socio-economic features of the districts' population but also that in 2016 the internet access was still not evenly distributed across different geographical areas.
+After 50 cells the center is no more colored and around 10 districts located in the west-center of the country are remaining, indicating a correlation with other characteristics missing in the analysis regarding the socio-economic features of the districts' population but also that in 2016 the internet access was still not evenly distributed across different geographical areas.
 
 # Conclusion
 
