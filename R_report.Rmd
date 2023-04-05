@@ -51,7 +51,7 @@ Zambia has been characterized by an increased internet access across the early '
 
 Many are the potential channels through which internet connection could affect outcomes related to political governance and more broadly the relationship of citizens with the state.
 
--   The specific goal of the report is to **assess whether heterogeneity in mobile access connection is correlated with the presence of different levels of voters turnout, that is proxying electoral participation, or with different levels of valid votes, proxying a better understanding of the democratic competition rules**.
+-   The specific goal of the report is to assess whether heterogeneity in mobile access connection is correlated with the presence of different levels of voters turnout, that is proxying electoral participation, or with different levels of valid votes, proxying a better understanding of the democratic competition rules.
 
 Three main datasets are used:
 
