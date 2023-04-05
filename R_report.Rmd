@@ -10,6 +10,7 @@ output:
     margin-right: 2cm
     margin-top: 2cm
     margin-bottom: 2cm
+  word_document: default
   pdf_document: default
 ---
 
@@ -63,13 +64,13 @@ The the two following figures is visible how both voters turnout and the number 
 ### Geographical Distribution of the voters' turnout
 
 ::: {align="center"}
-![](outcome1.png){width="300" height="400"}
+![](outcome1.png){width="600" height="500"}
 :::
 
 ### Geographical Distribution of internet mobile cells
 
 ::: {align="center"}
-![](treat1.png){width="300" height="400"}
+![](treat1.png){width="600" height="500"}
 :::
 
 The research project finds that there is **little to no correlation between both the electoral participation, the number of eligible votes and the internet access** as visible in the correlation plot below.
@@ -109,10 +110,13 @@ Zambia_data <- Zambia_data |>
   select(c("CID","Location_Area_Code","lat","lon","Range","Created"))
 Zambia_data <- na.omit(Zambia_data)
 
+```
+ 
+## Mobile access in Zambia raw data
 
-knitr::kable(head(Zambia_data), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!}{Mobile access in Zambia raw data}",
-             align = "c", longtable = TRUE)
+
+```{r uploadr, echo=FALSE, message=FALSE}
+knitr::kable(head(Zambia_data), format = "markdown", booktabs = TRUE)
 ```
 
 Then I transform the data from csv to a shape file creating a variable called geometry containing the information now stored in the variables latitude and longitude.
@@ -122,7 +126,7 @@ I keep only variables for which there are no missing data for longitude and lati
 The data on mobile access are now in shape-file format and look like this :
 
 ::: {align="center"}
-![](mobile_access_new.png){height="400px" width="300px"}
+![](mobile_access_new.png){height="500" width="600px"}
 :::
 
 Here we can already see the shape of Zambia even if the borders are not clear, we see how the different variables in the dataset are distributed across the coordinates of Zambia. For now this is not particularly indicative of anything, beside that the internet access data have been successfully converted into a shape-file.
@@ -134,36 +138,35 @@ gred_shp <- st_read("gred.shp")
 st_crs(gred_shp) <- 4326
 gred_shp <- na.omit(gred_shp)
 
+```
+## Shape of electoral districts in Zambia
 
+```{r newshaper, echo=FALSE, message = FALSE}
+knitr::kable(head(gred_shp), format = "markdown", booktabs = TRUE)
 
-knitr::kable(head(gred_shp), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Shape of electoral districts in Zambia}", 
-             align = "c", longtable = TRUE)
 ```
 
 Plotting the data we can see how they report the coordinates of each electoral district in Zambia:
 
 ::: {align="center"}
-![](gred.png){height="400" width="300"}
+![](gred_shp.png){height="500" width="600"}
 :::
 
-# Data exploration
+## Data exploration
 
 Now that I have both the mobile phone information and the shape of the electoral districts I can start exploring the variables of interest to answer to my research questions:
 
-## 1) Which is the effect of internet access, measured as the presence of an active registered CID in the electoral district, on electoral outcome, partisan vote and number of valid votes?
+#### 1) Which is the effect of internet access, measured as the presence of an active registered CID in the electoral district, on electoral outcome, partisan vote and number of valid votes?
 
-## 2) How the results change when the presence of internet access is measured using the fact that there is at least one cell in the district ?
+#### 2) How the results change when the presence of internet access is measured using the fact that there is at least one cell in the district ?
 
 I start by looking at how the presence of internet cells are distributed in the geography looking at all the data available regardless of the year:
 
 #### Presence of Internet Cells
 
 
-
-
 ::: {align="center"}
-![](presence_cells.png){width="400" height="300"}
+![](presence_cells.png){width="600" height="500"}
 :::
 
 
@@ -178,22 +181,30 @@ The I create a list of years and I loop through it to create one dataset for eac
 
 ## 2011
 
-```{r anotheryear, echo=FALSE}
+```{r anotheryear, echo=FALSE, message=FALSE}
 mobile_2011 <- read_csv("zambia_mobile_2011.csv")
 mobile_2011 <- na.omit(mobile_2011)
-knitr::kable(head(mobile_2011), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Mobile access in 2011}", 
-             align = "c", longtable = TRUE)
+```
+
+## Mobile access in 2011
+
+```{r anotheryearr, echo=FALSE, message=FALSE}
+knitr::kable(head(mobile_2011), format = "markdown", booktabs = TRUE)
+
 ```
 
 ## 2016
 
-```{r year, echo=FALSE}
+```{r year, echo=FALSE, message=FALSE}
 mobile_2016 <- read_csv("zambia_mobile_2016.csv")
 mobile_2016 <- na.omit(mobile_2016)
-knitr::kable(head(mobile_2016), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Mobile access in 2016}", 
-             align = "c", longtable = TRUE)
+```
+
+
+## Mobile access in 2016
+
+```{r yearr, echo=FALSE, message=FALSE}
+knitr::kable(head(mobile_2016), format = "latex", booktabs = TRUE)
 ```
 
 As it is visible the data for 2011 contain only 2 observations so the rest of the analysis will be focused on the 2016 elections.
@@ -206,14 +217,18 @@ At this point I can merge the file with the shape of the electoral districts wit
 
 And the data look as below:
 
-```{r merge, echo=FALSE}
+```{r merge, echo=FALSE, message=FALSE}
 mobile_2016_shp <- st_read("y2016.shp")
 mobile_2016_transformed <- st_transform(mobile_2016_shp, st_crs(gred_shp))
 joined_sf <- st_join(gred_shp, mobile_2016_transformed, join = st_intersects)
 joined_sf <- na.omit(joined_sf)
-knitr::kable(head(joined_sf), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Election data into discrits' shapes}", 
-             align = "c", longtable = TRUE)
+```
+
+
+###Election data into districts' shapes
+
+```{r merger, echo=FALSE, message=FALSE}
+knitr::kable(head(joined_sf), format = "markdown", booktabs = TRUE)
 ```
 
 ::: {align="center"}
@@ -228,7 +243,7 @@ Geometry = location
 
 Range = range of functioning of the tower
 
-# Statistical Analysis
+## Statistical Analysis
 
 ### First treatment assignation
 
@@ -244,7 +259,7 @@ At this point I can upload the data on the election for Zambia in 2016 taking th
 
 The data on the elections need to be cleaned, so I keep only useful column and then rename them to obtain the dataset below:
 
-```{r clean, echo=FALSE}
+```{r clean, echo=FALSE, message=FALSE}
 Zambia_election_2016 <- read.csv("Zambia_election_2016.csv")
 election_2016 <- Zambia_election_2016 |>
   select(c("cst_n", "pty_n", "pty", "pev1", "vv1", "to1", "cvs1", "pv1", "pvs1", "vot1", "ivv1"))
@@ -259,14 +274,19 @@ names(election_2016)[names(election_2016) == "vv1"] <- "n_valid_votes"
 names(election_2016)[names(election_2016) == "ivv1"] <- "n_invalid_votes"
 names(election_2016)[names(election_2016) == "vot1"] <- "vote_cast"
 election_2016 <- na.omit(election_2016)
-knitr::kable(head(election_2016), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Lower Chamber 2016 election data}", 
-             align = "c", longtable = TRUE)
+
+```
+
+
+### Lower Chamber 2016 election data
+
+```{r cleanr, echo=FALSE, message=FALSE}
+knitr::kable(head(election_2016), format = "markdown", booktabs = TRUE)
 ```
 
 The aim at this stage is to merge also election data with the previous mobile_district dataset, to do so I first rewrite the name of the districts in a way that can match the one of the previous dataset and the I join them, obtaining the data below.
 
-```{r join, echo=FALSE}
+```{r join, echo=FALSE, message=FALSE}
 names(joined_sf)[names(joined_sf) == "cst_n"] <- "elec_district_name"
 names(joined_sf)[names(joined_sf) == "cst"] <- "elec_district_code"
 names(joined_sf)[names(joined_sf) == "Created"] <- "date"
@@ -277,14 +297,16 @@ mobile_district <- mobile_district |>
   mutate(treat1 = n_distinct(CID))
 internet_election <- left_join( mobile_district, election_2016, by = "elec_district_name")
 internet_election <- na.omit(internet_election)
-knitr::kable(head(internet_election), format = "latex", booktabs = TRUE,
-             caption = "\\resizebox{\\textwidth}{!} {Merged data with electoral outcomes and mobile data}", 
-             align = "c", longtable = TRUE)
+```
+
+### Merged data with electoral outcomes and mobile data
+```{r joinr, echo=FALSE, message=FALSE}
+knitr::kable(head(internet_election), format = "markdown", booktabs = TRUE)
 ```
 
 It is now possible to look at the distributions of the two outcome variables which are :
 
-## (I) Voters Turnout
+### (I) Voters Turnout
 
 ::: {align="center"}
 ![](outcome1.png){width="600" height="500"}
@@ -293,12 +315,12 @@ It is now possible to look at the distributions of the two outcome variables whi
 
 It is already visible how the part of the country with a lower electoral participation in in the center of the country, and remember that white districts are those for which we have missing data.
 
-## (II) Number of votes by party
+### (II) Number of votes by party
 
 To visualize this second outcome variable I first look at how the votes shares are distributed in all the country and then I detail district by district for the most important parties. Firstly we can see below a histogram with the vote share by party by creating a dataset with only party name and vote share and then plot it:
 
 ::: {align="center"}
-![](votesharebar.png){width="800" height="500"}
+![](votesharebar.png){width="600" height="500"}
 :::
 
 
@@ -309,18 +331,18 @@ The two main parties seem to be National Restoration Party and Movement for Mult
 Looking at how the votes for the two main parties are geographically distributed :
 
 ::: {align="center"}
-![](nrp.png){width="500" height="400"}
+![](nrp.png){width="600" height="500"}
 :::
 
 NRP is receiving more votes in the north-east part of the country while MPD is getting more support in the center where we could observe above the turnout is higher and there is relatively more internet access
 
 ::: {align="center"}
-![](add.png){width="500" height="400"}
+![](add.png){width="600" height="500"}
 :::
 
 Now I run the correlation between having at least one CID in your district and the voters turnout using a maximum likelihood estimator and I plot it filtering out NA:
 
-## Correlation between internet access and voters' turnout
+### Correlation between internet access and voters' turnout
 
 ::: {align="center"}
 ![](lm.png){width="500" height="300"}
@@ -330,7 +352,7 @@ It looks like there is no correlation between the intensity of the treatment, in
 
 Now let's look at the correlation with the number of valid votes, maybe internet connection comes with more awareness on electoral competition rules:
 
-## Correlation between internet access and number of valid votes
+### Correlation between internet access and number of valid votes
 
 ::: {align="center"}
 ![](comp.png){width="500" height="300"}
@@ -356,7 +378,7 @@ So I  start by creating a treatment 2.1 where I assign to this new dummy the val
 ## Districts having at least 10 mobile cells
 
 ::: {align="center"}
-![](treat2_1.png){width="800" height="700"}
+![](treat2_1.png){width="500" height="600"}
 :::
 
 It is visible from the lowest threshold how the internet connection cells, as well as the most densly populated areas are located at the center of the country.
@@ -365,7 +387,7 @@ It is visible from the lowest threshold how the internet connection cells, as we
 ## Districts having at least 25 mobile cells
 
 ::: {align="center"}
-![](treat2_2.png){width="800" height="700"}
+![](treat2_2.png){width="500" height="600"}
 :::
 
 When going over 25 only a bit more than the 30% of the country is colored and it is all located in nearby areas, indicating a spillover effect of the internet access most likely linked to the benefit of scale economy in technological infrastructures.
@@ -375,7 +397,7 @@ When going over 25 only a bit more than the 30% of the country is colored and it
 
 
 ::: {align="center"}
-![](treat2_3.png){width="600" height="500"}
+![](treat2_3.png){width="500" height="600"}
 :::
 
 After 50 cells the center is n more colored and around 10 districts located in the west-center of the country are remaining, indicating a correlation with other characteristics missing in the analysis regarding the socio-economic features of the districts' population but also that in 2016 the internet access was still not evenly distributed across different geographical areas.

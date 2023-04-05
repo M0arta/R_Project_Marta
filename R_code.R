@@ -11,6 +11,8 @@ library(gridExtra)
 library(kableExtra)
 
 
+setwd("C:/Users/Bernardi_Marta/Downloads/R_Project")
+
 Zambia_data <- read_csv("645.csv.gz")
 
 
@@ -37,8 +39,8 @@ mobile_access = read.csv("Zambia_data.csv")
 mobile_access_complete <- mobile_access[complete.cases(mobile_access[c("lat", "lon")]),]
 mobile_access_sf <- st_as_sf(mobile_access_complete, coords = c("lat", "lon"))
 st_crs(mobile_access_sf) <- 4326
-st_write(mobile_access_sf, "ycell.shp", delete_dsn = TRUE)
-mobile_access_shp <- st_read("ycell.shp")
+st_write(mobile_access_sf, "cell.shp", delete_dsn = TRUE)
+mobile_access_shp <- st_read("cell.shp")
 
 
 #Open district geographies and assign crs
@@ -47,16 +49,15 @@ st_crs(gred_shp) <- 4326
 
 
 #Try to plot data before merging to see how they look like, there should be a series of data points for each column but with no spatial distribution because I still need to asign it
-
-plot(mobile_access_shp)
-png("mobile_access.png")
+plot(mobile_access)
+#png("mobile_access_new.png")
 
 # Plot the shape of Zambia that I would like to put together 
 
 plot(gred_shp)
-png("gred.png")
+#png("gred_shp.png")
 
-kable(head(gred_shp))
+head(gred_shp)
 
 #Keep only useful columns in mobile phone data 
 
@@ -96,15 +97,15 @@ kable(head(mobile_2011))
 
 mobile_2016 <- read_csv("zambia_mobile_2016.csv") #over 5000 observations so I'm studying 2016 election using treatment presence and intensity 
 kable(head(mobile_2016))
-
+kable(mobile_2016, format = "png")
 
 #### opening mobile 2016 as a sf object and assigning coordinate reference system 
 
 mobile_2016_complete <- mobile_2016[complete.cases(mobile_2016[c("lat", "lon")]),]
 mobile_2016_sf <- st_as_sf(mobile_2016_complete, coords = c("lat", "lon"))
 st_crs(mobile_2016_sf) <- 4326
-st_write(mobile_2016_sf, "y2016.shp", delete_dsn = TRUE)
-mobile_2016_shp <- st_read("y2016.shp")
+st_write(mobile_2016_sf, "2016.shp", delete_dsn = TRUE)
+mobile_2016_shp <- st_read("2016.shp")
 
 
 # check the CRS of your spatial objects
@@ -122,8 +123,8 @@ joined_sf <- na.omit(joined_sf)
 ### write joined data 2016 into a shape file and then use the normal plot to see how the different varibles look like in the space
 st_write(joined_sf, "yjoined_2016.shp", delete_dsn = TRUE)
 
-plot(joined_sf)
-png("thejoined.png")
+plot(joined_sf, max.plot = 17)
+#png("thejoin.png")
 
 
 kable(head(joined_sf))
@@ -154,7 +155,7 @@ ggplot() +
   theme_dark() +
   labs(fill = "Number of CIDs")
 
-ggsave("treat1.png")
+ggsave("/images/treat1.png")
 
 ### Load data on elections outcome from the website and select Zambia data in 2016 election round
 
@@ -204,7 +205,7 @@ ggplot() +
   scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
   theme_dark() +
   labs(fill = "Voters Turnout")
-ggsave("outcome1.png")
+ggsave("/images/outcome1.png")
 
 
 
@@ -224,7 +225,7 @@ ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_colors)) +
   scale_fill_identity(guide = "legend", labels = vote_share$party_name) +
   theme_dark() +
   theme(axis.text.x = element_blank())
-ggsave("votesharebar.png")
+ggsave("/images/votesharebar.png")
 
 
 
@@ -246,7 +247,7 @@ ggplot(votes_by_district, aes(fill = total_votes, color = total_votes)) +
   guides(fill = guide_colorbar(title = "Number of Votes"), color = FALSE) +
   coord_sf(crs = st_crs(votes_by_district), lims_method = "geometry_bbox")
 
-ggsave("nrp.png")
+ggsave("/images/nrp.png")
 
 ## Vote share by district for Multi-Party Democracy
 add_district <- internet_election |>
@@ -264,7 +265,7 @@ ggplot(add_district, aes(fill = total_votes, color = total_votes)) +
   guides(fill = guide_colorbar(title = "Number of Votes"), color = FALSE) +
   coord_sf(crs = st_crs(add_district), lims_method = "geometry_bbox")
 
-ggsave("add.png")
+ggsave("/images/add.png")
 
 
 ## Correlation CID and voters turnout 
@@ -276,7 +277,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
   stat_smooth(method = "lm", level = 0.90) +
   labs(x = "Number of internet cells", y = "Voter Turnout")
 
-ggsave("lm.png")
+ggsave("/images/lm.png")
 
 ## Correlation CID and valid votes 
 
@@ -285,7 +286,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
   stat_smooth(method = "lm", level = 0.90, color = "red", se = 0.90) +
   labs(x = "Number of internet cells", y = "Number of Valid votes") +
   theme_classic()
-ggsave("comp.png")
+ggsave("/images/comp.png")
 
 
 ## Assign treatment by presence instead of intensity 
@@ -301,7 +302,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of mobile towers")) +
   theme_dark()
 
-ggsave('treat2.png')
+ggsave('/images/treat2.png')
 
 
 
@@ -318,7 +319,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least 10 mobile towers")) +
   theme_dark()
 
-ggsave('treat2_1.png')
+ggsave('/images/treat2_1.png')
 
 #Use a higher one: 25 
 
@@ -333,7 +334,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least 25 mobile towers")) +
   theme_dark()
 
-ggsave('treat2_2.png')
+ggsave('/images/treat2_2.png')
 
 
 #Go up to 50 (I expect this to color populated districts ) 
@@ -348,7 +349,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least  50 mobile towers")) +
   theme_dark()
 
-ggsave('treat2_3.png')
+ggsave('/images/treat2_3.png')
 
 
 
