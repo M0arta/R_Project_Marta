@@ -1,21 +1,33 @@
----
 
-title: Exploring the correlation Patterns of internet connection and election outcomes
+---
+title: Exploring the Correlation Patterns of Internet Connection and Election Outcomes
   in Zambia
+author: "Bernardi Marta"
+date: "Introduction to Data Analysis with R - Final Project - Winter 2023 - CEU"
 output:
-  html_document:
-  keep_md: true
-  self_contained: false
-  df_print: paged
   pdf_document: default
-date: "Bernardi Marta - Introduction to Data Analysis with R - Final Project - Winter
-  2023 - CEU"
+  html_document:
+    df_print: paged
+    margin-left: 2cm
+    margin-right: 2cm
+    margin-top: 2cm
+    margin-bottom: 2cm
 ---
 
+```{css, echo=FALSE}
+body {
+  font-size: 14px;
+}
+```
 
-```{r setup, include=FALSE}
+```{r setp, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.align = "center")
 knitr::opts_chunk$set(fig.width = 7, fig.height = 5, fig.align = 'center', fig.show='asis')
+
+setwd("C:/Users/Bernardi_Marta/Downloads/Zambia")
+```
+
+```{r sp, include=FALSE}
 
 library(RColorBrewer)
 library(viridisLite)
@@ -27,37 +39,61 @@ library(readr)
 library(ggthemes)
 library(dplyr)
 library(ggplot2)
-
-setwd("C:/Users/Bernardi_Marta/Downloads/Zambia")
 ```
+## Executive summary
 
+Zambia has been characterized by an increased internet access across the early '00s as shown by the graph, taken from Statista using elaborations from the International Telecommunication Union (ITU) reported below:
 
+::: {align="center"}
+![](Zambia_internet_penetration.png){width="600" height="500"}
+:::
+-   As it is visible from the histogram around 2016 there has been a **significant increase in the internet acce**ss preceded by a steady increasing trend across all the previous years, and the literature reports this spike to be related mainly to a more diffused access to mobile internet. At the same time Zambia has hold two main elections in the period around the increase in the mobile connection bandwidth: one in 2011 and one in 2016.
 
-# Executive summary 
+-   Therefore, the aim of this project is to assess how the possibility to connect to the internet might affect socio-economic structures of political governance through channels such as: a change in social cohesion, an effect on democratic participation and open competition or also a change in the political game that reshuffle power dynamics across parties thanks to a change in instrument for political communication.
 
-Zambia has been characterized by an increased internet access across the early '00s as shown by the graph (not produced by me) below: 
+Many are the potential channels through which internet connection could affect outcomes related to political governance and more broadly the relationship of citizens with the state.
 
-![](Zambia_internet_penetration.png)
+-   The specific goal of the report is to **assess whether heterogeneity in mobile access connection is correlated with the presence of different levels of voters turnout, that is proxying electoral participation, or with different levels of valid votes, proxying a better understanding of the democratic competition rules**.
 
-As it is visible from the histogram around 2016 there has been a significant increase in the internet access, especially the mobile internet the literature reports. The aim of this project is to assess how heterogeneity in mobile internet access is correlated with the voters turnout in different electoral districts in Zambia given that both internet access and turnout around 2016 are changing non uniformly with respect to their previous trends. 
+Three main datasets are used:
 
-The research project finds that there is little to no correlation between both the electoral participation and the number of eligible votes and the internet access. This could be happening because there is a lot of measurement error in the mobile access given that the data are taken from an open source system where users voluntarly register the presence of internet cells. Or alternatively it could e because there is already a minimum level of internet everywhere by 2016 and therefore it is no more so crucial for electoral outcomes. 
+Firstly from the open election archives the shape of the electoral district of Zambia is taken and putted together with data coming from the OpenCellID website with an API to obtain the allocation of mobile phone towers to the electoral districts.
 
-Below you can see the absence of correlation between the number and the presence of mobile internet cells in the lectoral district with the voters turnout and the number of eligible votes: 
+Then always from the open election archives electoral district level data on the electoral outcomes of the 2016 lower chamber election are employed.
 
-![](comp.png)
-![](treat2.png)
+The the two following figures is visible how both voters turnout and the number of mobile cells towers have a different geographical distribution across districts:
 
-The project also explores the patterns of partisan vote across geographical units, finding a different geographical division for the votes to the two main parties. 
+### Geographical Distribution of the voters' turnout
 
+::: {align="center"}
+![](outcome1.png){width="300" height="400"}
+:::
 
-#  Introduction: 
+### Geographical Distribution of internet mobile cells
+
+::: {align="center"}
+![](treat1.png){width="300" height="400"}
+:::
+
+The research project finds that there is **little to no correlation between both the electoral participation, the number of eligible votes and the internet access** as visible in the correlation plot below.
+
+This could be happening because there is a lot of **measurement error** in the mobile access given that the data are taken from an open source system where users voluntarily register the presence of internet cells.
+
+Or alternatively it could e because there is already a minimum level of internet everywhere by 2016 and therefore it is no more so crucial for electoral outcomes.
+
+::: {align="center"}
+![](lm.png){width="600" height="500"}
+:::
+
+The project also explores the patterns of partisan vote across geographical units, finding a different geographical division for the votes to the two main parties with NRP taking the majority of its votes from the North-East and MMP winning across the South West.
+
+# Introduction:
 
 The project employees 3 dataset with the aim to combine geo-referenced election outcomes at electoral district level in Zambia with OpenCellID data coming from a public access API containing information on the presence of active internet cells and their coverage.
 
-Firstly, I upload the data containing the geo-referenced information on internet access downloaded from :  https://opencellid.org/downloads.php and I rename the columns so that it is understandable which values is what and I keep only interesting columns , to obtain the data as below as save them in a csv.
+Firstly, I upload the data containing the geo-referenced information on internet access downloaded from : <https://opencellid.org/downloads.php> and I rename the columns so that it is understandable which values is what and I keep only interesting columns , to obtain the data as below as save them in a csv.
 
-```{r upload, echo=FALSE}
+```{r upload, echo=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 Zambia_data <- read_csv("645.csv.gz")
 names(Zambia_data)[names(Zambia_data) == "645"] <- "MCC"
@@ -72,183 +108,152 @@ names(Zambia_data)[names(Zambia_data) == "1...10"] <- "Changeable=1"
 names(Zambia_data)[names(Zambia_data) == "1...11"] <- "Changeable=0"
 names(Zambia_data)[names(Zambia_data) == "1459743588...12"] <- "Created"
 names(Zambia_data)[names(Zambia_data) == "1459743588...13"] <- "Updated"
-names(Zambia_data)[names(Zambia_data) == "0...14"] <- "Average_signal"
 Zambia_data <- Zambia_data |> 
-  select(c("CID","Location_Area_Code","lat","lon","Range","Created", "Average_signal"))
-kable(head(Zambia_data))
-write_csv(Zambia_data, "Zambia_data.csv")
+  select(c("CID","Location_Area_Code","lat","lon","Range","Created"))
+Zambia_data <- na.omit(Zambia_data)
+
+knitr::kable(head(Zambia_data), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!}{Mobile access in Zambia raw data}",
+             align = "c", longtable = TRUE)
 ```
 
-Then I transfrom the data from csv to a shape file creating a variable called geometry containing the informations now stored in the variables latitude and longitude. I keep only variables for which there are no missing data for longitude and latitude, otherwise I do not know where to place them in the map and I assign a coordinate reference system so that I can compare this map with the map that I will use later containing the data on the elections, to obtain the shape file of the mobile data as below: 
+Then I transform the data from csv to a shape file creating a variable called geometry containing the information now stored in the variables latitude and longitude.
 
+I keep only variables for which there are no missing data for longitude and latitude, otherwise I do not know where to place them in the map and I assign a coordinate reference system so that I can compare this map with the map that I will use later containing the data on the elections, to obtain the shape file of the mobile data as below:
 
-```{r shape, message=TRUE, warning=FALSE}
-mobile_access_complete <- Zambia_data[complete.cases(Zambia_data[c("lat", "lon")]),]
-mobile_access_sf <- st_as_sf(mobile_access_complete, coords = c("lat", "lon"))
-st_crs(mobile_access_sf) <- 4326
-st_write(mobile_access_sf, "igcell.shp", delete_dsn = TRUE)
-mobile_access_shp <- st_read("igcell.shp")
-kable(head(mobile_access_shp))
-```
-The data on mobile access are now in shape-file format and look like this : 
+The data on mobile access are now in shape-file format and look like this :
 
-```{r reshape, echo=FALSE}
-plot(mobile_access_shp)
-pdf("mobile_access_shp.png")
-dev.off()
+::: {align="center"}
+![](mobile_access_new.png){height="400px" width="300px"}
+:::
 
-```
-Here we can already see the shape of Zambia even if the borders are not clear, we see how the different variables in the dataset are distributed across the coordinates of Zambia. For now this is not particularly indicative of anything, beside that the internet access data have been successfully converted into a shapefile. 
+Here we can already see the shape of Zambia even if the borders are not clear, we see how the different variables in the dataset are distributed across the coordinates of Zambia. For now this is not particularly indicative of anything, beside that the internet access data have been successfully converted into a shape-file.
 
-Now to give Zambia a shape and to upload the remaining part of the data necessary for the analysis I open from https://electiondataarchive.org/data-and-documentation/georeferenced-electoral-districts-datasets/ the shapes of the Zambian electoral districts, I assign the same coordinate reference system that I assigned to the mobile data above and I obtain the data as below:
-```{r newshape, echo=FALSE}
+Now to give Zambia a shape and to upload the remaining part of the data necessary for the analysis I open from <https://electiondataarchive.org/data-and-documentation/georeferenced-electoral-districts-datasets/> the shapes of the Zambian electoral districts, I assign the same coordinate reference system that I assigned to the mobile data above and I obtain the data as below:
+
+```{r newshape, echo=FALSE, message = FALSE}
+
 gred_shp <- st_read("gred.shp")
 st_crs(gred_shp) <- 4326
-kable(head(gred_shp))
-```
-Plotting the data we can see how they report the coordinates of each electoral district in Zambia: 
-```{r geoplot, echo=FALSE}
-plot(gred_shp)
-pdf("gred_shp.png")
-dev.off()
+gred_shp <- na.omit(gred_shp)
+knitr::kable(head(gred_shp), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Shape of electoral districts in Zambia}", 
+             align = "c", longtable = TRUE)
 ```
 
+Plotting the data we can see how they report the coordinates of each electoral district in Zambia:
 
-# Data exploration 
+::: {align="center"}
+![](gred.png){height="400x" width="300px"}
+:::
 
+# Data exploration
 
-Now that I have both the mobile phone information and the shape of the electoral districts I can start exploring the variables of interest to answer to my research questions: 
+Now that I have both the mobile phone information and the shape of the electoral districts I can start exploring the variables of interest to answer to my research questions:
 
-1) Which is the effect of internet access, measured as the presence of an active registered CID in the electoral district, on electoral outcome, partisan vote and number of valid votes? 
+## 1) Which is the effect of internet access, measured as the presence of an active registered CID in the electoral district, on electoral outcome, partisan vote and number of valid votes?
 
-2) How the results change when the presence of internet access is measured using the fact that there is at least one cell in the district ?
+## 2) How the results change when the presence of internet access is measured using the fact that there is at least one cell in the district ?
 
-I start by looking at how the presence of internet cells are distributed in the geography looking at all the data available regardless of the year: 
+I start by looking at how the presence of internet cells are distributed in the geography looking at all the data available regardless of the year:
 
+#### Presence if Internet Cells
 
-```{r anotherplot, echo=FALSE}
-ggplot() + 
-  geom_sf(data = mobile_access_shp, aes(fill = CID)) +
-  scale_fill_viridis_c() +
-  theme_dark()
-
-ggsave("presence_cells.png")
-```
+::: {align="center"}
+![](presence_cells.png){width="400" height="300"}
+:::
 
 It is visible how considering all the years at the same time there are CID bringing internet all across the country.
-Now to consider only data for the years of interest for the elections I slice the dataset into years using the column called created. To do so I first convert the timestamp into a date, it is a Unix timestamp so it is indicating the number of seconds from a fixed date and is unreadable as it is. The I create a list of years and I loop throught it to create one dataset for each year. 
-I'm interested in years 2011 and 2016 that can be seen below: 
 
+Now to consider only data for the years of interest for the elections I slice the dataset into years using the column called created.
 
-```{r therplot, echo=FALSE}
-Zambia_data$Created <- as.POSIXct(Zambia_data$Created, origin="1970-01-01", tz="GMT")
-year_list <- split(Zambia_data, format(Zambia_data$Created, "%Y"))
-for (year in names(year_list)) {
-  filename <- paste0("zambia_mobile_", year, ".csv")
-  write.csv(year_list[[year]], file = filename, row.names = FALSE)
-}
+To do so I first convert the timestamp into a date, it is a Unix timestamp so it is indicating the number of seconds from a fixed date and is unreadable as it is.
+
+The I create a list of years and I loop through it to create one dataset for each year. I'm interested in years 2011 and 2016 that can be seen below:
+
+## 2011
+
+```{r anotheryear, echo=FALSE}
 
 mobile_2011 <- read_csv("zambia_mobile_2011.csv")
-kable(head(mobile_2011))
+mobile_2011 <- na.omit(mobile_2011)
+
+knitr::kable(head(mobile_2011), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Mobile access in 2011}", 
+             align = "c", longtable = TRUE)
+
 ```
+
+## 2016
+
 ```{r year, echo=FALSE}
 mobile_2016 <- read_csv("zambia_mobile_2016.csv")
-kable(head(mobile_2016))
+mobile_2016 <- na.omit(mobile_2016)
+knitr::kable(head(mobile_2016), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Mobile access in 2016}", 
+             align = "c", longtable = TRUE)
+
 ```
 
-As it is visible the data for 2011 contain only 2 observations so the rest of the analysis will be focused on the 2016 elections. 
+As it is visible the data for 2011 contain only 2 observations so the rest of the analysis will be focused on the 2016 elections.
 
-I now open the mobile data for 2016 as a sf object (a way to call the shape files when openend with specific libraries in R) and I assign again always the same coordinate reference system. 
-
-```{r open,include=FALSE, echo=FALSE}
-mobile_2016_complete <- mobile_2016[complete.cases(mobile_2016[c("lat", "lon")]),]
-mobile_2016_sf <- st_as_sf(mobile_2016_complete, coords = c("lat", "lon"))
-st_crs(mobile_2016_sf) <- 4326
-st_write(mobile_2016_sf, "ig2016.shp", delete_dsn = TRUE)
-mobile_2016_shp <- st_read("ig2016.shp")
-```
-
+I now open the mobile data for 2016 as a sf object (a way to call the shape files when openend with specific libraries in R) and I assign again always the same coordinate reference system.
 
 Then I check and compare the coordinate reference system and make sure they match.
 
+At this point I can merge the file with the shape of the electoral districts with the one of the mobile access in the year of interest for which the data are available and then write the merged dataset into a shapefile, so that I can see how many cells were in each district.
 
-
-```{r crs,include=FALSE, echo=FALSE}
-mobile_2016_transformed <- st_transform(mobile_2016_shp, st_crs(gred_shp))
-```
-
-
-At this point I can merge the file with the shape of the electoral districts with the one of the mobile access in the year of interest for which the data are available and then write the merged dataset into a shapefile, so that I can see how many cells were in each district. And the data look as below: 
+And the data look as below:
 
 ```{r merge, echo=FALSE}
+
+mobile_2016_shp <- st_read("y2016.shp")
+mobile_2016_transformed <- st_transform(mobile_2016_shp, st_crs(gred_shp))
 joined_sf <- st_join(gred_shp, mobile_2016_transformed, join = st_intersects)
 joined_sf <- na.omit(joined_sf)
-st_write(joined_sf, "ijoined_2016.shp" , delete_dsn = TRUE)
-plot(joined_sf)
-pdf("joined_sf.png")
-kable(head(joined_sf))
+knitr::kable(head(joined_sf), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Election data into discrits' shapes}", 
+             align = "c", longtable = TRUE)
+
+
 ```
 
+::: {align="center"}
+![](thejoin.png){width="600" height="500"}
+:::
 
 Now I can rename variables knowing that :
 
 CID = number of mobile cells
-geometry = location 
+
+Geometry = location
+
 Range = range of functioning of the tower
 
-
-```{r sense, echo=FALSE}
-
-names(joined_sf)[names(joined_sf) == "cst_n"] <- "elec_district_name"
-names(joined_sf)[names(joined_sf) == "cst"] <- "elec_district_code"
-names(joined_sf)[names(joined_sf) == "Created"] <- "date"
-
-
-mobile_district <- joined_sf |> 
-  select(c('elec_district_name', 'geometry', 'elec_district_code', 'Range', 'CID', 'date'))
-
-```
 # Statistical Analysis
 
-*First treatment assignation*
+### First treatment assignation
 
-I can now start to see how the number of a CID mobile internet cells is correlated with district level electoral outcomes from the lower chamber election in 2016. To do this I start by creating a new variables that is corresponding to the amount of internet mobile cells present in the electoral district, this is going to be the non-experimental treatment that I will try to leverage on in the analysis. After creating the new variable I plot it's geographical distribution using a white patch for variables with no data (NA): 
+I can now start to see how the number of a CID mobile internet cells is correlated with district level electoral outcomes from the lower chamber election in 2016. To do this I start by creating a new variables that is corresponding to the amount of internet mobile cells present in the electoral district, this is going to be the non-experimental treatment that I will try to leverage on in the analysis. After creating the new variable I plot it's geographical distribution using a white patch for variables with no data (NA):
 
-```{r treat, echo=FALSE}
+::: {align="center"}
+![](treat1.png){width="600" height="500"}
+:::
 
-mobile_district <-mobile_district |>
-  group_by(elec_district_name) |>
-  mutate(treat1 = n_distinct(CID))
+Looking at the map above the lighter is the color the higher is the number of mobile cells and the picture suggests that there is heterogeneity in the intensity of the internet across different electoral districts.
 
+At this point I can upload the data on the election for Zambia in 2016 taking them from <https://electiondataarchive.org/data-and-documentation/clea-lower-chamber-elections-archive/> to see how it correlates with this first treatment assignation.
 
-ggplot() + 
-  geom_sf(data = mobile_district, aes(fill = treat1)) +
-  scale_fill_viridis_c(na.value = "white", limits = c(0, 200), guide = guide_colorsteps(ncol = 50)) +
-  theme_dark() +
-  labs(fill = "Number of mobile towers")
-ggsave("treat1.png")
+The data on the elections need to be cleaned, so I keep only useful column and then rename them to obtain the dataset below:
 
-```
-Looking at the map above the lighter is the color the higher is the number of mobile cells and the picture suggests that there is heterogeneity in the intensity of the internet across different electoral districts. 
-
-At this point I can upload the data on the election for Zambia in 2016 taking them from https://electiondataarchive.org/data-and-documentation/clea-lower-chamber-elections-archive/ to see how it correlates with this first treatment assignation. 
-
-```{r newdata, echo=FALSE}
+```{r clean, echo=FALSE}
 
 load("clea_lc_20220908.RData") 
-
 Zambia_election <- clea_lc_20220908 |>
-  filter(cst_n == "Zambia")
+  filter(ctr_n == "Zambia")
 
 Zambia_election_2016 <- Zambia_election |>
   filter(yr == 2016)
-  write.csv(Zambia_election_2016, "Zambia_election_2016.csv", row.names = FALSE)
-
-```
-
-The data on the elections need to be cleaned, so I keep only useful column and then rename them to obtain the dataset below: 
-
-```{r clean, echo=FALSE}
 
 election_2016 <- Zambia_election_2016 |>
   select(c("cst_n", "pty_n", "pty", "pev1", "vv1", "to1", "cvs1", "pv1", "pvs1", "vot1", "ivv1"))
@@ -259,140 +264,123 @@ names(election_2016)[names(election_2016) == "pty_n"] <- "party_name"
 names(election_2016)[names(election_2016) == "pty"] <- "party_code"
 names(election_2016)[names(election_2016) == "pev1"] <- "n_eligible_voters"
 names(election_2016)[names(election_2016) == "pv1"] <- "n_votes"
-names(election_2016)[names(election_2016) == "pvs1"] <- "party_vote_share"
+names(election_2016)[names(election_2016) == "pvs1"] <- "party_vpte_share"
 names(election_2016)[names(election_2016) == "vv1"] <- "n_valid_votes"
 names(election_2016)[names(election_2016) == "ivv1"] <- "n_invalid_votes"
 names(election_2016)[names(election_2016) == "vot1"] <- "vote_cast"
-kable(head(election_2016))
+election_2016 <- na.omit(election_2016)
+knitr::kable(head(election_2016), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Lower Chamber 2016 election data}", 
+             align = "c", longtable = TRUE)
 
 ```
-The aim at this stage is to merge also election data with the previous mobile_district dataset, to do so I first rewrite the name of the districts in a way that can match the one of the previous dataset and the I join them, obtaining the data below.
 
+The aim at this stage is to merge also election data with the previous mobile_district dataset, to do so I first rewrite the name of the districts in a way that can match the one of the previous dataset and the I join them, obtaining the data below.
 
 ```{r join, echo=FALSE}
 
-election_2016$elec_district_name <- str_to_title(election_2016$elec_district_name)
 
-internet_election <- left_join(mobile_district, election_2016, by = "elec_district_name", multiple = "all")
-
-kable(head(internet_election))
-
+names(joined_sf)[names(joined_sf) == "cst_n"] <- "elec_district_name"
+names(joined_sf)[names(joined_sf) == "cst"] <- "elec_district_code"
+names(joined_sf)[names(joined_sf) == "Created"] <- "date"
+mobile_district <- joined_sf |> 
+  select(c('elec_district_name', 'geometry', 'elec_district_code', 'Range', 'CID', 'Rad_typ', 'date'))
+mobile_district <- mobile_district |>
+  group_by(elec_district_name) |>
+  mutate(treat1 = n_distinct(CID))
+internet_election <- left_join( mobile_district, election_2016, by = "elec_district_name")
+internet_election <- na.omit(internet_election)
+knitr::kable(head(internet_election), format = "latex", booktabs = TRUE,
+             caption = "\\resizebox{\\textwidth}{!} {Merged data with electoral outcomes and mobile data}", 
+             align = "c", longtable = TRUE)
 ```
 
-It is now possible to look at the distributions of the two outcome variables which are : 
+It is now possible to look at the distributions of the two outcome variables which are :
 
-*(I) Voters Turnout*
+## (I) Voters Turnout
 
-```{r outcome1, echo=FALSE}
-ggplot() + 
-  geom_sf(data = internet_election, aes(fill = internet_election$voter_turn)) +
-  scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
-  theme_dark() +
-  labs(fill = "Voters Turnout")
-ggsave("outcome1.png")
-```
+::: {align="center"}
+![](outcome1.png){width="600" height="500"}
+:::
+
+
 It is already visible how the part of the country with a lower electoral participation in in the center of the country, and remember that white districts are those for which we have missing data.
 
-*(II) Number of votes by party *
+## (II) Number of votes by party
 
-To visualize this second outcome variable I first look at how the votes shares are distributed in all the country and then I detail district by district for the most important parties. 
-Firstly we can see below a histogram with the vote share by party by creating a dataset with only party name and vote share and then plot it: 
+To visualize this second outcome variable I first look at how the votes shares are distributed in all the country and then I detail district by district for the most important parties. Firstly we can see below a histogram with the vote share by party by creating a dataset with only party name and vote share and then plot it:
 
-
-```{r please, echo=FALSE}
-
-vote_share <- election_2016 |>
-  group_by(party_name) |>
-  summarize(total_votes = sum(n_votes, na.rm = TRUE))
+::: {align="center"}
+![](votesharebar.png){width="800" height="500"}
+:::
 
 
-ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_name)) + 
-  geom_bar(stat = "identity") +
-  labs(title = " Number of Votes by Party", x = "Party", y = "Number of votes") +
-  scale_fill_identity(guide = "legend", labels = vote_share$party_name) +
-  theme_dark() +
-  theme(axis.text.x = element_blank())
-ggsave("votesharebar.png")
+</div>
 
-```
-The two main parties seem to be National Restoration Party and Movement for Multi-Party Democracy. 
+The two main parties seem to be National Restoration Party and Movement for Multi-Party Democracy.
 
-Now I run the correlation between having at least one CID in your district and the voters turnout using lm and i plot it filtering out NA: 
+Looking at how the votes for the two main parties are geographically distributed :
 
-```{r lm, echo=FALSE}
+::: {align="center"}
+![](nrp.png){width="500" height="400"}
+:::
 
-internet_election_clean <- na.omit(internet_election)
-ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
-  geom_point() +
-  stat_smooth(method = "lm", level = 0.90) +
-  labs(x = "Number of internet cells", y = "Voter Turnout")
+NRP is receiving more votes in the north-east part of the country while MPD is getting more support in the center where we could observe above the turnout is higher and there is relatively more internet access
 
-ggsave("lm.png")
+::: {align="center"}
+![](add.png){width="500" height="400"}
+:::
 
-```
-It looks like there is no correlation between the intensity of the treatment, internet access, and the voters turnout. Now let's look at the correlation with the number of valid votes, maybe internet connetction comes with more awareness on electoral competition rules: 
+Now I run the correlation between having at least one CID in your district and the voters turnout using a maximum likelihood estimator and I plot it filtering out NA:
 
-```{r comp, echo=FALSE}
+## Correlation between internet access and voters' turnout
 
-ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
-  geom_point(color = "blue") +
-  stat_smooth(method = "lm", level = 0.90, color = "red", se = 0.90) +
-  labs(x = "Number of internet cells", y = "Number of Valid votes") +
-  theme_classic()
-ggsave("comp.png")
+::: {align="center"}
+![](lm.png){width="600" height="500"}
+:::
 
-```
+It looks like there is no correlation between the intensity of the treatment, internet access, and the voters turnout.
 
-The picture here looks very similar, little to no correlation is shown. 
+Now let's look at the correlation with the number of valid votes, maybe internet connection comes with more awareness on electoral competition rules:
 
+## Correlation between internet access and number of valid votes
 
-*Second Treatment Assignment*
+::: {align="center"}
+![](comp.png){width="600" height="500"}
+:::
 
-I can now assign the presence of internet access using the presence of treatment instead of the intensity of the treatment and see if the lack fo correlation is robust to this alternative treatment specification. To do this I create a dummy that is 1 if there is at least 1 CID in the electoral district and 0 otherwise adn then I plot it's distribution to see if there is heterogeneity in how this new way of assigning treatment look like. 
+The picture here looks very similar, little to no correlation is shown.
 
+### Second Treatment Assignment
 
-```{r newtreat, echo=FALSE}
+I can now assign the presence of internet access using the presence of treatment instead of the intensity of the treatment and see if the lack fo correlation is robust to this alternative treatment specification. To do this I create a dummy that is 1 if there is at least 1 CID in the electoral district and 0 otherwise adn then I plot it's distribution to see if there is heterogeneity in how this new way of assigning treatment look like.
 
-internet_election <- internet_election |>
-  mutate(treat2 = ifelse(treat1 >= 1, 1, 0))
+::: {align="center"}
+![](treat2.png){width="600" height="500"}
+:::
 
-ggplot() + 
-  geom_sf(data = internet_election, aes(fill = factor(treat2))) +
-  scale_fill_manual(values = c("0" = "white", "1" = "purple"), 
-                    na.value = "white",
-                    guide = guide_legend(title = "Presence of mobile towers")) +
-  theme_dark()
-
-ggsave('treat2.png')
-
-```
 It is visible how in each district by 2016 there is still at least one mobile tower registered, so this way of assigning treatment is not useful for the purpose of the analysis.
 
+# Conclusion
 
-# Conclusion 
+In conclusion there is a lot of heterogeneity in terms of geographical location for both the turnout, the party vote share, the number od eligible votes and the presence of internet access mobile towers, but the patterns do not seem to be correlated after this first exploration.
 
-In conclusion there is a lot of heterogeneity in terms of geographical location for both the turnout, the party vote share, the number od eligible votes and the presence of internet access mobile towers, but the patterns do not seem to be correlated after this first exploration. 
+# Explained chunk of code
 
+I choose to explain in detail this chunk of code :
 
-# Explained chunk of code 
-
-I choose to explain in detail this chunk of code : 
-
- *1*- I create a subset of the election 2016 data where I have the sum of the number of votes by party, to do this i group the n_votes based on the party name using the election_2016 data and I aggregate by summing up the n_votes. 
- *2*- I create a list of colors, one for each party that I have in the election data generating manually color scale.
- *3*- I use ggplot setting the filtered votes by party as data, explaining in the aestethic that I want the x axis to be filled with the party names, the y axis with how many votes and the fill should be based on the color scale i created manually above.
- *4*- The stat = "identity" argument tells ggplot that the y variable is already in the correct scale and should be used as is
- *5*- I use scale_fill_identity to produce a legend with the name of the party and the assigned color at the side of the graph 
- *6*- Lastly I set the theme to be dark because I like the style and I set off the names of the parties in the x axis that was too crowded. 
- 
-```{r lewtreat, eval=TRUE, message=FALSE, warning=FALSE, include=FALSE}
+```{r lewtreat, eval=FALSE, message=FALSE, warning=FALSE, echo =TRUE}
 
 vote_share <- election_2016 |>
   group_by(party_name) |>
   summarize(total_votes = sum(n_votes, na.rm = TRUE))
 
 
-party_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999", "#E6007E", "#980000", "#000080", "#E9A3C9", "#A9D18E", "#FFC8A3")
+party_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
+                           "#0072B2", "#D55E00", "#CC79A7",
+                           "#999999", "#E6007E", "#980000",
+                           "#000080", "#E9A3C9", "#A9D18E", 
+                           "#FFC8A3")
 
 
 ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_name)) + 
@@ -404,8 +392,26 @@ ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_name)) +
 
 ```
 
+### 1
 
+I create a subset of the election 2016 data where I have the sum of the number of votes by party, to do this i group the n_votes based on the party name using the election_2016 data and I aggregate by summing up the n_votes.
 
+### 2
 
+I create a list of colors, one for each party that I have in the election data generating manually color scale.
 
+### 3
 
+I use ggplot setting the filtered votes by party as data, explaining in the aesthetic that I want the x axis to be filled with the party names, the y axis with how many votes and the fill should be based on the color scale i created manually above.
+
+### 4
+
+The stat = "identity" argument tells ggplot that the y variable is already in the correct scale and should be used as it is.
+
+### 5
+
+I use scale_fill_identity to produce a legend with the name of the party and the assigned color at the side of the graph.
+
+### 6
+
+Lastly I set the theme to be dark because I like the style and I set off the names of the parties in the x axis that was too crowded.

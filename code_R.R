@@ -7,6 +7,9 @@ library(readr)
 library(ggthemes)
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
+
+
 setwd("C:/Users/Bernardi_Marta/Downloads/Zambia")
 
 Zambia_data <- read_csv("645.csv.gz")
@@ -46,13 +49,15 @@ st_crs(gred_shp) <- 4326
 
 #Try to plot data before merging to see how they look like, there should be a series of data points for each column but with no spatial distribution because I still need to asign it
 
-#plot(mobile_access_shp)
-#pdf("mobile_access_shp.png")
+plot(mobile_access_shp)
+png("mobile_access.png")
 
-#plot the shape of Zambia that I would like to put together 
+# Plot the shape of Zambia that I would like to put together 
 
-#plot(gred_shp)
-#pdf("gred_shp.png")
+plot(gred_shp)
+png("gred.png")
+
+kable(head(gred_shp))
 
 #Keep only useful columns in mobile phone data 
 
@@ -61,11 +66,11 @@ mobile_access_selected <- mobile_access_shp |>
 
 #Plot to see how the variable of interest look like when all the years are taken into consideration together 
 
-#ggplot() + 
-#geom_sf(data = mobile_access_selected, aes(fill = CID)) +
-#scale_fill_viridis_c() +
-#theme_dark()
-#ggsave("presence_cells.png")
+ggplot() + 
+geom_sf(data = mobile_access_selected, aes(fill = CID)) +
+scale_fill_viridis_c() +
+theme_dark()
+ggsave("presence_cells.png")
 
 #Slice year by year to decrease computational request and assign treatment year by year, to slice use the time the data were "Created"
 #the timestamp is a Unix timestamp representing the date and time as the number of seconds that have elapsed since January 1, 1970 at 00:00:00 UTC
@@ -87,10 +92,12 @@ for (year in names(year_list)) {
 #Open the 2011 dataset and merge it with the shape of the electoral districts in Zambia from gred_shp
 
 mobile_2011 <- read_csv("zambia_mobile_2011.csv")  #there are only 2 observations 
-
+kable(head(mobile_2011))
 #Try with other years 
 
 mobile_2016 <- read_csv("zambia_mobile_2016.csv") #over 5000 observations so I'm studying 2016 election using treatment presence and intensity 
+kable(head(mobile_2016))
+
 
 #### opening mobile 2016 as a sf object and assigning coordinate reference system 
 
@@ -116,8 +123,10 @@ joined_sf <- na.omit(joined_sf)
 ### write joined data 2016 into a shape file and then use the normal plot to see how the different varibles look like in the space
 st_write(joined_sf, "yjoined_2016.shp", delete_dsn = TRUE)
 
-#plot(joined_sf)
-#pdf("joined_sf.png")
+plot(joined_sf)
+png("thejoined.png")
+
+
 kable(head(joined_sf))
 
 ### Rename variables in th merged dataset ad keep only usefull ones
@@ -140,13 +149,13 @@ mobile_district <- mobile_district |>
 
 ###Plot treatment 1 having NA white 
 
-#ggplot() + 
-# geom_sf(data = mobile_district, aes(fill = treat1)) +
-# scale_fill_viridis_c(na.value = "white", limits = c(0, 200), guide = guide_colorsteps(ncol = 50)) +
-#theme_dark() +
-#labs(fill = "Number of CIDs")
+ggplot() + 
+geom_sf(data = mobile_district, aes(fill = treat1)) +
+scale_fill_viridis_c(na.value = "white", limits = c(0, 200), guide = guide_colorsteps(ncol = 50)) +
+theme_dark() +
+labs(fill = "Number of CIDs")
 
-#ggsave("treat1.png")
+ggsave("treat1.png")
 
 ### Load data on elections outcome from the website and select Zambia data in 2016 election round
 
@@ -180,18 +189,18 @@ kable(head(election_2016))
 election_2016$elec_district_name <- str_to_title(election_2016$elec_district_name)
 
 ### Perform a left join between a spatial object and a normal database
-internet_election <- left_join( joined_sf, election_2016, by = "elec_district_name")
+internet_election <- left_join( mobile_district, election_2016, by = "elec_district_name")
 
 ### Look how potential outcome variables are distributed in space 
 
 ##Voters Turnout 
 
-#ggplot() + 
-# geom_sf(data = internet_election, aes(fill = internet_election$voter_turn)) +
-#scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
-#theme_dark() +
-#labs(fill = "Voters Turnout")
-#ggsave("outcome1.png")
+ggplot() + 
+geom_sf(data = internet_election, aes(fill = voter_turn)) +
+scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
+theme_dark() +
+labs(fill = "Voters Turnout")
+ggsave("outcome1.png")
 
 
 
@@ -205,7 +214,7 @@ vote_share <- election_2016 |>
 party_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999", "#E6007E", "#980000", "#000080", "#E9A3C9", "#A9D18E", "#FFC8A3")
 
 
-ggplot(vote_share, aes(x = party_name, y = vote_share$total_votes, fill = party_colors)) + 
+ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_colors)) + 
   geom_bar(stat = "identity") +
   labs(title = " Number of Votes by Party", x = "Party", y = "Number of votes") +
   scale_fill_identity(guide = "legend", labels = vote_share$party_name) +
@@ -234,6 +243,7 @@ ggplot(votes_by_district, aes(fill = total_votes, color = total_votes)) +
   coord_sf(crs = st_crs(votes_by_district), lims_method = "geometry_bbox")
 
 ggsave("nrp.png")
+
 ## Vote share by district for Multi-Party Democracy
 add_district <- internet_election |>
   filter(party_name == "Movement for Multi-Party Democracy")|>
@@ -255,8 +265,8 @@ ggsave("add.png")
 
 ## Correlation CID and voters turnout 
 
-
 internet_election_clean <- na.omit(internet_election)
+
 ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
   geom_point() +
   stat_smooth(method = "lm", level = 0.90) +
@@ -274,20 +284,18 @@ ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
 ggsave("comp.png")
 
 
-## Assign treament by presence instead of intensity 
+## Assign treatment by presence instead of intensity 
 
 
 internet_election <- internet_election |>
   mutate(treat2 = ifelse(treat1 >= 1, 1, 0))
 
 ggplot() + 
-  geom_sf(data = internet_election, aes(fill = factor(treat2))) +
+  geom_sf(data = internet_election, aes(fill = factor(treat2)) +
   scale_fill_manual(values = c("0" = "white", "1" = "purple"), 
                     na.value = "white",
                     guide = guide_legend(title = "Presence of mobile towers")) +
   theme_dark()
 
 ggsave('treat2.png') 
-
-
 
