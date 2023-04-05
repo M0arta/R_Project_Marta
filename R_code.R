@@ -97,7 +97,6 @@ kable(head(mobile_2011))
 
 mobile_2016 <- read_csv("zambia_mobile_2016.csv") #over 5000 observations so I'm studying 2016 election using treatment presence and intensity 
 kable(head(mobile_2016))
-kable(mobile_2016, format = "png")
 
 #### opening mobile 2016 as a sf object and assigning coordinate reference system 
 
@@ -205,7 +204,7 @@ ggplot() +
   scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
   theme_dark() +
   labs(fill = "Voters Turnout")
-ggsave("outcome1.png")
+ggsave("/images/outcome1.png")
 
 
 
@@ -225,7 +224,7 @@ ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_colors)) +
   scale_fill_identity(guide = "legend", labels = vote_share$party_name) +
   theme_dark() +
   theme(axis.text.x = element_blank())
-ggsave("votesharebar.png")
+ggsave("/images/votesharebar.png")
 
 
 
@@ -279,7 +278,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
 
 ggsave("lm.png")
 
-### Correlation CID and valid votes 
+## Correlation CID and valid votes 
 
 ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
   geom_point(color = "blue") +
@@ -289,7 +288,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
 ggsave("comp.png")
 
 
-### Assign treatment by presence instead of intensity 
+## Assign treatment by presence instead of intensity 
 
 
 internet_election <- internet_election |>
