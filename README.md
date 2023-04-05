@@ -11,7 +11,7 @@ The second dataset is coming from https://electiondataarchive.org/data-and-docum
 
 The third dataset is coming from https://opencellid.org/downloads.php and is reporting data on mobile access in different years that I will filter using a timestamp
 
-#### To replicate the analysis that can be found in R_project.hmtl and R_project.pdf 
+## To replicate the analysis that can be found in R_project.hmtl and R_project.pdf 
 
 1) Download this github folder and set it as working directory
 2) Run the code called R_code.R
