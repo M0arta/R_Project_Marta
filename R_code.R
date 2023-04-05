@@ -279,7 +279,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
 
 ggsave("/images/lm.png")
 
-## Correlation CID and valid votes 
+### Correlation CID and valid votes 
 
 ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
   geom_point(color = "blue") +
@@ -289,7 +289,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
 ggsave("/images/comp.png")
 
 
-## Assign treatment by presence instead of intensity 
+### Assign treatment by presence instead of intensity 
 
 
 internet_election <- internet_election |>
