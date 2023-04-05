@@ -155,7 +155,7 @@ ggplot() +
   theme_dark() +
   labs(fill = "Number of CIDs")
 
-ggsave("/images/treat1.png")
+ggsave("treat1.png")
 
 ### Load data on elections outcome from the website and select Zambia data in 2016 election round
 
@@ -205,7 +205,7 @@ ggplot() +
   scale_fill_viridis_c(na.value = "white", limits = c(0, 1), guide = guide_colorsteps(ncol = 50)) +
   theme_dark() +
   labs(fill = "Voters Turnout")
-ggsave("/images/outcome1.png")
+ggsave("outcome1.png")
 
 
 
@@ -225,7 +225,7 @@ ggplot(vote_share, aes(x = party_name, y = total_votes, fill = party_colors)) +
   scale_fill_identity(guide = "legend", labels = vote_share$party_name) +
   theme_dark() +
   theme(axis.text.x = element_blank())
-ggsave("/images/votesharebar.png")
+ggsave("votesharebar.png")
 
 
 
@@ -247,7 +247,7 @@ ggplot(votes_by_district, aes(fill = total_votes, color = total_votes)) +
   guides(fill = guide_colorbar(title = "Number of Votes"), color = FALSE) +
   coord_sf(crs = st_crs(votes_by_district), lims_method = "geometry_bbox")
 
-ggsave("/images/nrp.png")
+ggsave("nrp.png")
 
 ## Vote share by district for Multi-Party Democracy
 add_district <- internet_election |>
@@ -265,7 +265,7 @@ ggplot(add_district, aes(fill = total_votes, color = total_votes)) +
   guides(fill = guide_colorbar(title = "Number of Votes"), color = FALSE) +
   coord_sf(crs = st_crs(add_district), lims_method = "geometry_bbox")
 
-ggsave("/images/add.png")
+ggsave("add.png")
 
 
 ## Correlation CID and voters turnout 
@@ -277,7 +277,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = voter_turn)) +
   stat_smooth(method = "lm", level = 0.90) +
   labs(x = "Number of internet cells", y = "Voter Turnout")
 
-ggsave("/images/lm.png")
+ggsave("lm.png")
 
 ### Correlation CID and valid votes 
 
@@ -286,7 +286,7 @@ ggplot(internet_election_clean, aes(x = treat1, y = n_valid_votes)) +
   stat_smooth(method = "lm", level = 0.90, color = "red", se = 0.90) +
   labs(x = "Number of internet cells", y = "Number of Valid votes") +
   theme_classic()
-ggsave("/images/comp.png")
+ggsave("comp.png")
 
 
 ### Assign treatment by presence instead of intensity 
@@ -302,7 +302,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of mobile towers")) +
   theme_dark()
 
-ggsave('/images/treat2.png')
+ggsave('treat2.png')
 
 
 
@@ -319,7 +319,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least 10 mobile towers")) +
   theme_dark()
 
-ggsave('/images/treat2_1.png')
+ggsave('treat2_1.png')
 
 #Use a higher one: 25 
 
@@ -334,7 +334,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least 25 mobile towers")) +
   theme_dark()
 
-ggsave('/images/treat2_2.png')
+ggsave('treat2_2.png')
 
 
 #Go up to 50 (I expect this to color populated districts ) 
@@ -349,7 +349,7 @@ ggplot() +
   guides(fill = guide_legend(title = "Presence of at least  50 mobile towers")) +
   theme_dark()
 
-ggsave('/images/treat2_3.png')
+ggsave('treat2_3.png')
 
 
 
